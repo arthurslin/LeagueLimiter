@@ -1,0 +1,10 @@
+{
+  "reset_hour": 4,
+  "default_games": 1,
+  "max_games_choice": 10,
+  "allow_raising_limit": false,
+  "count_custom_games": false,
+  "count_practice_tool": false,
+  "close_delay_seconds": 15,
+  "league_dir": "C:\\Riot Games\\League of Legends"
+}
