@@ -5,3 +5,7 @@ state.json
 ui.json
 *.log
 demo/
+build/
+dist/
+*.spec
+installer/Output/
