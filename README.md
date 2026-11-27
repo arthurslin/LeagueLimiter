@@ -1,4 +1,11 @@
+<img src="assets/icon.png" width="96" align="right" alt="League Limiter icon">
+
 # League Limiter
+
+[![Build](https://github.com/arthurslin/LeagueLimiter/actions/workflows/build.yml/badge.svg)](https://github.com/arthurslin/LeagueLimiter/actions/workflows/build.yml)
+[![Latest release](https://img.shields.io/github/v/release/arthurslin/LeagueLimiter)](https://github.com/arthurslin/LeagueLimiter/releases/latest)
+
+**[⬇ Download the latest installer (LeagueLimiter-Setup.exe)](https://github.com/arthurslin/LeagueLimiter/releases/latest/download/LeagueLimiter-Setup.exe)**
 
 A small Windows app that caps how many League of Legends games you play per day.
 
@@ -13,19 +20,22 @@ It only reads the client's local API and closes the *client* process. It never t
 
 ## Install
 
-Requires Windows and [Python 3](https://www.python.org/downloads/).
+1. Download **[LeagueLimiter-Setup.exe](https://github.com/arthurslin/LeagueLimiter/releases/latest/download/LeagueLimiter-Setup.exe)** and run it. It doesn't need admin rights.
+2. Leave **Start League Limiter automatically when I sign in** ticked.
+
+The installer isn't code-signed, so Windows SmartScreen may show "Windows protected your PC". Click **More info → Run anyway**.
+
+To uninstall, go to **Settings → Apps → Installed apps → League Limiter → Uninstall**. Your play history in `%LOCALAPPDATA%\LeagueLimiter` is kept.
+
+### Run from source instead
+
+This requires [Python 3](https://www.python.org/downloads/).
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File install.ps1
 ```
 
-This starts the app now and adds it to your Startup folder, so it runs at every logon.
-
-## Uninstall
-
-```powershell
-powershell -ExecutionPolicy Bypass -File uninstall.ps1
-```
+This starts the app now and adds it to your Startup folder. To remove it, run `uninstall.ps1`.
 
 ## Usage
 
@@ -45,7 +55,29 @@ powershell -ExecutionPolicy Bypass -File uninstall.ps1
 | `close_delay_seconds` | `15` | Seconds after your last game before the client closes |
 | `league_dir` | `C:\Riot Games\League of Legends` | Fallback install folder, used to find the client's lockfile |
 
-Changes take effect the next time the app starts.
+Changes take effect the next time the app starts. If you used the installer, open the file from **Start menu → League Limiter settings**.
+
+## Building and releases
+
+Every push and pull request runs the tests and builds the installer on GitHub Actions. You can download the result from the run's **Artifacts**.
+
+To publish a release, bump `__version__` in `limiter.pyw`, then push a matching tag:
+
+```powershell
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+The workflow then attaches `LeagueLimiter-Setup.exe` to a new GitHub Release, and the download link above always points to the newest one.
+
+To build locally, you need PyInstaller and [Inno Setup 6](https://jrsoftware.org/isinfo.php):
+
+```powershell
+pyinstaller --noconfirm --windowed --name LeagueLimiter --icon assets/icon.ico --add-data "assets/icon.ico;assets" limiter.pyw
+& "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DAppVersion=1.0.0 installer\LeagueLimiter.iss
+```
+
+To redraw the icon, run `python assets/make_icon.py`. This needs Pillow.
 
 ## Testing without League
 

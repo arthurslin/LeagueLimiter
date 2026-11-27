@@ -29,7 +29,14 @@ import tkinter as tk
 import urllib.error
 import urllib.request
 
-APP_DIR = os.path.dirname(os.path.abspath(__file__))
+__version__ = "1.0.0"
+
+FROZEN = getattr(sys, "frozen", False)  # running as the packaged LeagueLimiter.exe
+# Folder holding config.json (next to the .exe when packaged, else next to this script)
+APP_DIR = os.path.dirname(sys.executable if FROZEN else os.path.abspath(__file__))
+# Folder holding bundled resources (the icon)
+RES_DIR = getattr(sys, "_MEIPASS", APP_DIR)
+ICON_FILE = os.path.join(RES_DIR, "assets", "icon.ico")
 DEMO = "--demo" in sys.argv
 DATA_DIR = os.path.join(os.environ.get("LOCALAPPDATA", APP_DIR), "LeagueLimiter")
 if DEMO:
@@ -324,14 +331,22 @@ class App:
         self.cfg = load_config()
         self.state = State(self.cfg)
         self.watcher = Watcher(self.cfg, self.state)
+        try:  # own taskbar identity/icon instead of Python's
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("LeagueLimiter")
+        except (AttributeError, OSError):
+            pass
         self.root = tk.Tk()
         self.root.withdraw()
+        try:
+            self.root.iconbitmap(default=ICON_FILE)  # applies to every window
+        except tk.TclError:
+            pass
         self.dialog = None
         self.close_deadline = None
         self._build_overlay()
         self.watcher.start()
         self.root.after(500, self.tick)
-        log("started" + (" (demo)" if DEMO else ""))
+        log(f"started v{__version__}" + (" (demo)" if DEMO else ""))
 
     # ---- overlay counter -------------------------------------------------
     def _build_overlay(self):
